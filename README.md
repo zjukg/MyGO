@@ -18,7 +18,7 @@ pip install -r requirement.txt
 
 
 ## Data Preparation
-You should first get the textual token embedding by running `save_token_embedding.py` with transformers library.
+You should first get the textual token embedding by running `save_token_embedding.py` with transformers library. The modality tokenization code will be released soon. You can first try MyGO on the pre-processed datasets DB15K and MKG-W. The modality tokenization needs to download the original raw multi-modal data therefore the code will need more time to be prepared.
 
 ## Train and Evaluation
 You can refer to the training scripts in `run.sh` to reproduce our experiment results. Here is an example for DB15K dataset.

@@ -152,7 +152,7 @@ if __name__ == "__main__":
             with torch.no_grad():
                 ent_embs, rel_embs = model()
                 lp_list_rank = []
-                for triplet in tqdm(KG.test):
+                for triplet in tqdm(KG.valid):
                     h,r,t = triplet
                     head_score = model.score(ent_embs, rel_embs, torch.tensor([[KG.num_ent + KG.num_rel, r + KG.num_ent, t + KG.num_rel]]).cuda())[0].detach().cpu().numpy()
                     head_rank = calculate_rank(head_score, h, KG.filter_dict[(-1, r, t)])
@@ -165,6 +165,26 @@ if __name__ == "__main__":
                 lp_list_rank = np.array(lp_list_rank)
                 mr, mrr, hit10, hit3, hit1 = metrics(lp_list_rank)
                 logger.info("Link Prediction on Validation Set")
+                logger.info(f"MR: {mr}")
+                logger.info(f"MRR: {mrr}")
+                logger.info(f"Hit10: {hit10}")
+                logger.info(f"Hit3: {hit3}")
+                logger.info(f"Hit1: {hit1}")
+
+                lp_list_rank = []
+                for triplet in tqdm(KG.test):
+                    h,r,t = triplet
+                    head_score = model.score(ent_embs, rel_embs, torch.tensor([[KG.num_ent + KG.num_rel, r + KG.num_ent, t + KG.num_rel]]).cuda())[0].detach().cpu().numpy()
+                    head_rank = calculate_rank(head_score, h, KG.filter_dict[(-1, r, t)])
+                    tail_score = model.score(ent_embs, rel_embs, torch.tensor([[h + KG.num_rel, r + KG.num_ent, KG.num_ent + KG.num_rel]]).cuda())[0].detach().cpu().numpy()
+                    tail_rank = calculate_rank(tail_score, t, KG.filter_dict[(h, r, -1)])
+
+                    lp_list_rank.append(head_rank)
+                    lp_list_rank.append(tail_rank)
+
+                lp_list_rank = np.array(lp_list_rank)
+                mr, mrr, hit10, hit3, hit1 = metrics(lp_list_rank)
+                logger.info("Link Prediction on Test Set")
                 logger.info(f"MR: {mr}")
                 logger.info(f"MRR: {mrr}")
                 logger.info(f"Hit10: {hit10}")
