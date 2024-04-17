@@ -29,14 +29,16 @@ CUDA_VISIBLE_DEVICES=0 nohup python train_mygo_fgc.py --data DB15K --num_epoch 1
 
 More training scripts can be found in `run.sh`.
 
-
+## 🤝 Citation
 ```bigquery
 
-@article{zhang2024native,
-  title={NativE: Multi-modal Knowledge Graph Completion in the Wild},
-  author={Zhang, Yichi and Chen, Zhuo and Guo, Lingbing and Xu, Yajing and Hu, Binbin and Liu, Ziqi and Zhang, Wen and Chen, Huajun},
-  journal={Authorea Preprints},
-  year={2024},
-  publisher={Authorea}
+@misc{zhang2024mygo,
+      title={MyGO: Discrete Modality Information as Fine-Grained Tokens for Multi-modal Knowledge Graph Completion}, 
+      author={Yichi Zhang and Zhuo Chen and Lingbing Guo and Yajing Xu and Binbin Hu and Ziqi Liu and Huajun Chen and Wen Zhang},
+      year={2024},
+      eprint={2404.09468},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI}
 }
+
 ```
