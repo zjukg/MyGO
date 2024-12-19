@@ -5,7 +5,7 @@ from collections import Counter, defaultdict
 
 def load_ent_map(dataset):
     ent_map = {}
-    if dataset == "DB15K":
+    if dataset == "FB15K-237" or dataset == "DB15K" or dataset == "WN9":
         f = open("data/{}/entities.txt".format(dataset), "r")
         for line in f.readlines():
             ent = line.replace('\n', '')
@@ -18,11 +18,18 @@ def load_ent_map(dataset):
     return ent_map
 
 
-def get_entity_visual_tokens(dataset, max_num):
-    tokenized_result = json.load(open("tokens/{}-visual.json".format(dataset), "r"))
+def get_entity_visual_tokens(dataset, max_num, type="beit"):
+    if type == "beit":
+        tokenized_result = json.load(open("tokens/{}-visual.json".format(dataset), "r"))
+        token_size = 8192
+    elif type == 'vqgan':
+        tokenized_result = json.load(open("tokens/{}-visual-vqgan.json".format(dataset), "r"))
+        token_size = 1024
+    else:
+        raise NotImplementedError
     token_dict = defaultdict(list)
     entity_dict = load_ent_map(dataset)
-    for i in range(8192 + 1):
+    for i in range(token_size + 1):
         token_dict[i] = []
     for entity in tokenized_result:
         token_count = Counter(tokenized_result[entity])
@@ -47,7 +54,7 @@ def get_entity_visual_tokens(dataset, max_num):
             entid_tokens.append(entity_to_token[key])
             ent_key_mask.append(([False] * max_num))
         else:
-            entid_tokens.append([8192] * max_num)
+            entid_tokens.append([token_size - 1] * max_num)
             ent_key_mask.append(([True] * max_num))
     return torch.LongTensor(entid_tokens), torch.BoolTensor(ent_key_mask).cuda()
 
@@ -108,10 +115,12 @@ def get_entity_visual_tokens_with_limit(dataset, max_num, max_img=None):
     num_count = [(k, len(token_dict[k])) for k in token_dict]
     num_count = sorted(num_count, key=lambda x: -x[1])
     token_ids = list(token_dict.keys())
+    # print(token_ids)
     entity_to_token = defaultdict(list)
     for i in range(len(token_ids)):
         for ent in token_dict[token_ids[i]]:
             entity_to_token[entity_dict[ent]].append(i)
+    # json.dump(entity_to_token, open("{}-tokens-{}.json".format(dataset, max_num), "w"))
     entid_tokens = []
     ent_key_mask = []
     for i in range(len(entity_dict)):
@@ -124,8 +133,15 @@ def get_entity_visual_tokens_with_limit(dataset, max_num, max_img=None):
     return torch.LongTensor(entid_tokens), torch.BoolTensor(ent_key_mask).cuda()
 
 
-def get_entity_textual_tokens_db15K(dataset, max_num):
-    tokenized_result = json.load(open("tokens/{}-textual-v2.json".format(dataset), "r"))
+def get_entity_textual_tokens_db15K(dataset, max_num, type):
+    if type == "bert":
+        tokenized_result = json.load(open("tokens/{}-textual-v2.json".format(dataset), "r"))
+    elif type == "roberta":
+        tokenized_result = json.load(open("tokens/{}-textual-roberta.json".format(dataset), "r"))
+    elif type == "llama":
+        tokenized_result = json.load(open("tokens/{}-textual-llama.json".format(dataset), "r"))
+    else:
+        raise NotImplementedError
     token_dict = defaultdict(list)
     entity_dict = load_ent_map(dataset)
     for i in range(30522 + 1):
@@ -155,9 +171,9 @@ def get_entity_textual_tokens_db15K(dataset, max_num):
             ent_key_mask.append(([False] * len(s) + [True] * (max_num - len(s))))
     return torch.LongTensor(entid_tokens), torch.BoolTensor(ent_key_mask).cuda()
 
-def get_entity_textual_tokens(dataset, max_num):
+def get_entity_textual_tokens(dataset, max_num, type="bert"):
     if dataset == "DB15K":
-        return get_entity_textual_tokens_db15K(dataset, max_num)
+        return get_entity_textual_tokens_db15K(dataset, max_num, type)
     tokenized_result = json.load(open("tokens/{}-textual.json".format(dataset), "r"))
     token_dict = defaultdict(list)
     entity_dict = load_ent_map(dataset)
@@ -256,7 +272,7 @@ def get_entity_visual_tokens_FB15K237(dataset, max_num):
 
 
 if __name__ == "__main__":
-    dataset = "DB15K"
+    dataset = "FB15K-237"
     max_token_num = 8
     a, b = get_entity_visual_tokens_FB15K237(dataset, max_token_num)
     print(a)

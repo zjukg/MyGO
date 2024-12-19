@@ -4,6 +4,7 @@
 ![model](resource/model.png)
 
 ## 🎆 News
+- `2024-12` 🎉🎉🎉 Our paper is accepted by AAAI 2025.
 - `2024-04` Our paper and code are released on ArXiV and Github.
 - `2024-02` **We preprint our Survey [Knowledge Graphs Meet Multi-Modal Learning: A Comprehensive Survey](http://arxiv.org/abs/2402.05391)  [[`Repo`](https://github.com/zjukg/KG-MM-Survey)].**
 
@@ -24,7 +25,7 @@ pip install -r requirement.txt
 
 
 ## Data Preparation
-You should first get the textual token embedding by running `save_token_embedding.py` with transformers library. The modality tokenization code will be released soon. You can first try MyGO on the pre-processed datasets DB15K and MKG-W. The modality tokenization needs to download the original raw multi-modal data therefore the code will need more time to be prepared.
+You should first get the textual token embedding by running `save_token_embeddings.py` with transformers library (BERT, RoBERTa, LlaMA). You can first try MyGO on the pre-processed datasets DB15K, MKG-W, and MKG-Y. The large token files in `tokens/` should be unzipped before using in the training process. We provide VQGAN / BEiT tokens for visual modality and BERT / RoBERTa / LlaMA tokens for textual modality.
 
 ## Train and Evaluation
 You can refer to the training scripts in `run.sh` to reproduce our experiment results. Here is an example for DB15K dataset.

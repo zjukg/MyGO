@@ -22,7 +22,9 @@ class MyGO(nn.Module):
             txt_dropout = 0.1,
             visual_token_index = None, 
             text_token_index = None,
-            score_function = "tucker"
+            score_function = "tucker",
+            text_tokenizer = "bert",
+            visual_tokenizer = "vqgan"
         ):
         super(MyGO, self).__init__()
         self.dim_str = dim_str
@@ -30,14 +32,29 @@ class MyGO(nn.Module):
         self.dim_hid = dim_hid
         self.num_ent = num_ent
         self.num_rel = num_rel
-
-        visual_tokens = torch.load("tokens/visual.pth")
-        textual_tokens = torch.load("tokens/textual.pth")
+        # Load Different Tokenizers
+        if text_tokenizer == "bert":
+            textual_tokens = torch.load("tokens/textual.pth")
+        elif text_tokenizer == "roberta":
+            textual_tokens = torch.load("tokens/textual_roberta.pth")
+        elif text_tokenizer == "llama":
+            textual_tokens = torch.load("tokens/textual_llama.pth")
+        else:
+            raise NotImplementedError
+        if visual_tokenizer == "beit":
+            visual_tokens = torch.load("tokens/visual.pth")
+        elif visual_tokenizer == "vqgan":
+            visual_tokens = torch.load("tokens/visual_vqgan.pth")
+        else:
+            raise NotImplementedError
+        
         self.visual_token_index = visual_token_index
         self.visual_token_embedding = nn.Embedding.from_pretrained(visual_tokens).requires_grad_(False)
         self.text_token_index = text_token_index
         self.text_token_embedding = nn.Embedding.from_pretrained(textual_tokens).requires_grad_(False)
         self.score_function = score_function
+        self.img_dim = visual_tokens.shape[1]
+        self.txt_dim = textual_tokens.shape[1]
 
         self.visual_token_embedding.requires_grad_(False)
         self.text_token_embedding.requires_grad_(False)
@@ -76,9 +93,11 @@ class MyGO(nn.Module):
         self.pos_head = nn.Parameter(torch.Tensor(1,1,dim_str))
         self.pos_rel = nn.Parameter(torch.Tensor(1,1,dim_str))
         self.pos_tail = nn.Parameter(torch.Tensor(1,1,dim_str))
+
+        # Old Setting
+        self.proj_ent_vis = nn.Linear(self.img_dim, dim_str)
+        self.proj_ent_txt = nn.Linear(self.txt_dim, dim_str)
         
-        self.proj_ent_vis = nn.Linear(32, dim_str)
-        self.proj_ent_txt = nn.Linear(768, dim_str)
 
         # self.proj_rel_vis = nn.Linear(dim_vis * 3, dim_str)
 
@@ -91,7 +110,7 @@ class MyGO(nn.Module):
         self.decoder = nn.TransformerEncoder(decoder_layer, num_layer_dec)
 
         self.contrastive = ContrastiveLoss(temp=0.5)
-        self.num_con = 256
+        self.num_con = 512
         self.num_vis = ent_vis_mask.shape[1]
         if self.score_function == "tucker":
             self.tucker_decoder = TuckERLayer(dim_str, dim_str)
@@ -99,8 +118,8 @@ class MyGO(nn.Module):
             pass
         
         self.init_weights()
-        torch.save(self.visual_token_embedding, open("visual_token.pth", "wb"))
-        torch.save(self.text_token_embedding, open("textual_token.pth", "wb"))
+        # torch.save(self.visual_token_embedding, open("visual_token.pth", "wb"))
+        # torch.save(self.text_token_embedding, open("textual_token.pth", "wb"))
         
 
     def init_weights(self):
@@ -133,6 +152,7 @@ class MyGO(nn.Module):
         ent_seq = torch.cat([ent_tkn, rep_ent_str, rep_ent_vis, rep_ent_txt], dim = 1)
         ent_embs = self.ent_encoder(ent_seq, src_key_padding_mask = self.ent_mask)[:,0]
         rep_rel_str = self.embdr(self.str_rel_ln(self.rel_embeddings))
+        # torch.save(ent_embs, open("/data1/zhangyichi/DiscreteKGC/embeddings/entity_matrix.pth", "wb"))
         return torch.cat([ent_embs, self.lp_token], dim = 0), rep_rel_str.squeeze(dim=1)
 
     def contrastive_loss(self, emb_ent1):
@@ -162,6 +182,7 @@ class MyGO(nn.Module):
         
         # ent_embs: [ent_num, seq_len, embed_dim]
         ent_embs = self.ent_encoder(ent_seq, src_key_padding_mask = self.ent_mask)
+        print(ent_embs.shape, self.lp_token.shape)
         emb_ent2 = torch.cat([ent_embs[:,0], self.lp_token], dim = 0)
         ent_emb3 = torch.cat([torch.mean(ent_embs, dim=1), self.lp_token], dim = 0)
         ent_emb4 = torch.cat([torch.mean(ent_embs[:, 2: 2 + self.num_vis, :], dim=1), self.lp_token], dim=0)
