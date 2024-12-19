@@ -1,10 +1,11 @@
-# MyGO: Discrete Modality Information as Fine-Grained Tokens for Multi-modal Knowledge Graph Completion
+# (MyGO) Tokenization, Fusion, and Augmentation: Towards Fine-grained Multi-modal Entity Representation
+
 
 ## Overview
 ![model](resource/model.png)
 
 ## 🎆 News
-- `2024-12` 🎉🎉🎉 Our paper is accepted by AAAI 2025.
+- `2024-12` 🎉🎉🎉 Our paper is accepted by AAAI 2025. The title is changed to **Tokenization, Fusion, and Augmentation: Towards Fine-grained Multi-modal Entity Representation**.
 - `2024-04` Our paper and code are released on ArXiV and Github.
 - `2024-02` **We preprint our Survey [Knowledge Graphs Meet Multi-Modal Learning: A Comprehensive Survey](http://arxiv.org/abs/2402.05391)  [[`Repo`](https://github.com/zjukg/KG-MM-Survey)].**
 
