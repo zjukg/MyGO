@@ -148,8 +148,8 @@ class MyGO(nn.Module):
         ent_seq = torch.cat([ent_tkn, rep_ent_str, rep_ent_vis, rep_ent_txt], dim = 1)
         ent_embs = self.ent_encoder(ent_seq, src_key_padding_mask = self.ent_mask)[:,0]
         rep_rel_str = self.embdr(self.str_rel_ln(self.rel_embeddings))
-        # torch.save(ent_embs, open("/data1/zhangyichi/DiscreteKGC/embeddings/entity_matrix.pth", "wb"))
         return torch.cat([ent_embs, self.lp_token], dim = 0), rep_rel_str.squeeze(dim=1)
+
 
     def contrastive_loss(self, emb_ent1):
         ent_tkn = self.ent_token.tile(self.num_ent, 1, 1)
