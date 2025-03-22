@@ -24,7 +24,7 @@ class MyGO(nn.Module):
             text_token_index = None,
             score_function = "tucker",
             text_tokenizer = "bert",
-            visual_tokenizer = "vqgan"
+            visual_tokenizer = "beit"
         ):
         super(MyGO, self).__init__()
         self.dim_str = dim_str
@@ -94,13 +94,9 @@ class MyGO(nn.Module):
         self.pos_rel = nn.Parameter(torch.Tensor(1,1,dim_str))
         self.pos_tail = nn.Parameter(torch.Tensor(1,1,dim_str))
 
-        # Old Setting
         self.proj_ent_vis = nn.Linear(self.img_dim, dim_str)
         self.proj_ent_txt = nn.Linear(self.txt_dim, dim_str)
         
-
-        # self.proj_rel_vis = nn.Linear(dim_vis * 3, dim_str)
-
 
         ent_encoder_layer = nn.TransformerEncoderLayer(dim_str, num_head, dim_hid, dropout, batch_first = True)
         self.ent_encoder = nn.TransformerEncoder(ent_encoder_layer, num_layer_enc_ent)
