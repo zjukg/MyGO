@@ -37,16 +37,27 @@ CUDA_VISIBLE_DEVICES=0 nohup python train_mygo_fgc.py --data DB15K --num_epoch 1
 
 More training scripts can be found in `run.sh`.
 
+## How to Conduct Multi-image Experiments?
+- In the provided token files, the number of visual tokens is a multiple of 196 (196, 392, 588, 784, 960). This pattern occurs because BEiT processes each image into 196 tokens, so each entity with N images will have N*196 visual tokens. We can perform the multi-image experiments mentioned in the paper by dividing the entity's visual tokens into groups of every 196, in order, and then generating entity token files with different number of images.
+
 ## 🤝 Citation
 ```bigquery
 
-@misc{zhang2024mygo,
-      title={MyGO: Discrete Modality Information as Fine-Grained Tokens for Multi-modal Knowledge Graph Completion}, 
-      author={Yichi Zhang and Zhuo Chen and Lingbing Guo and Yajing Xu and Binbin Hu and Ziqi Liu and Huajun Chen and Wen Zhang},
-      year={2024},
-      eprint={2404.09468},
-      archivePrefix={arXiv},
-      primaryClass={cs.AI}
+@inproceedings{DBLP:conf/aaai/ZhangCGXHLZC25,
+  author       = {Yichi Zhang and
+                  Zhuo Chen and
+                  Lingbing Guo and
+                  Yajing Xu and
+                  Binbin Hu and
+                  Ziqi Liu and
+                  Wen Zhang and
+                  Huajun Chen},
+  title        = {Tokenization, Fusion, and Augmentation: Towards Fine-grained Multi-modal
+                  Entity Representation},
+  booktitle    = {{AAAI}},
+  pages        = {13322--13330},
+  publisher    = {{AAAI} Press},
+  year         = {2025}
 }
 
 ```
